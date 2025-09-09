@@ -32,7 +32,8 @@ export default function Home() {
     setIsTestStarted(false);
   };
 
-  const answeredCount = Object.keys(answers).length;
+  const answeredCount = Object.values(answers)
+    .filter(v => Number(v) >= 1 && Number(v) <= 5).length;
   const allAnswered = answeredCount === questions.length;
 
   if (showResults) {
