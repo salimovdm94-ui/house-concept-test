@@ -393,6 +393,11 @@ export function round2(n: number) {
   return Math.round(n * 100) / 100;
 }
 
+export function isTense(value: number | string | undefined): boolean {
+  const num = Number(value);
+  return Number.isFinite(num) && num > 1.0;
+}
+
 export function calculateResults(answers: Record<number, number>): TestResult {
   // Преобразуем старый формат ответов в новый формат
   const newAnswers: Partial<Answers> = {};
@@ -413,6 +418,10 @@ export function calculateResults(answers: Record<number, number>): TestResult {
   // Находим топ-2 шкалы
   const { top1, top2 } = pickTopScales(avgs);
   const diff = avgs[top1] - avgs[top2];
+  
+  // Отладочная информация
+  console.log('AVGS', avgs);
+  console.log('Top scales:', { top1, top2, diff });
 
   // Определяем архетипы
   const archetypes: string[] = [];
@@ -440,7 +449,7 @@ export function calculateResults(answers: Record<number, number>): TestResult {
     }
   } else {
     // Fallback: если не нашли архетип, показываем советы по топ-шкале
-    const topScaleName = scaleNames[top1 as keyof typeof scaleNames];
+    const topScaleName = scaleNames[top1 as keyof typeof scaleNames] || 'неопределенная шкала';
     archetypes.push(`Рекомендации по шкале "${topScaleName}"`);
     descriptions.push(`Ваша ведущая шкала - "${topScaleName}". Обратите внимание на развитие этой области в обустройстве дома.`);
   }

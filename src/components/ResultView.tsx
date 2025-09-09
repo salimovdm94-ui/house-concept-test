@@ -1,6 +1,6 @@
 'use client';
 
-import { TestResult } from '@/lib/scoring';
+import { TestResult, isTense } from '@/lib/scoring';
 import { scaleNames } from '@/lib/scoring';
 import Section from './Section';
 
@@ -49,16 +49,16 @@ export default function ResultView({ result }: ResultViewProps) {
         <div className="space-y-4">
           <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
             <span className="font-medium text-gray-700">T1 = |AT - AM|</span>
-            <span className={`text-lg font-bold ${result.tensions.T1 > 1.0 ? 'text-red-600' : 'text-green-600'}`}>
+            <span className={`text-lg font-bold ${isTense(result.tensions.T1) ? 'text-red-600' : 'text-green-600'}`}>
               {result.tensions.T1.toFixed(2)}
-              {result.tensions.T1 > 1.0 && <span className="text-sm ml-2">⚠️ есть напряжение</span>}
+              {isTense(result.tensions.T1) && <span className="text-sm ml-2">⚠️ есть напряжение</span>}
             </span>
           </div>
           <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
             <span className="font-medium text-gray-700">T2 = |CT - TU|</span>
-            <span className={`text-lg font-bold ${result.tensions.T2 > 1.0 ? 'text-red-600' : 'text-green-600'}`}>
+            <span className={`text-lg font-bold ${isTense(result.tensions.T2) ? 'text-red-600' : 'text-green-600'}`}>
               {result.tensions.T2.toFixed(2)}
-              {result.tensions.T2 > 1.0 && <span className="text-sm ml-2">⚠️ есть напряжение</span>}
+              {isTense(result.tensions.T2) && <span className="text-sm ml-2">⚠️ есть напряжение</span>}
             </span>
           </div>
         </div>
@@ -73,33 +73,45 @@ export default function ResultView({ result }: ResultViewProps) {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <h4 className="font-medium mb-2">Сильные стороны</h4>
-                <ul className="list-disc ml-5 space-y-1">{result.archetypeData.strengths.map((t, i) => <li key={i}>{t}</li>)}</ul>
+                <ul className="list-disc ml-5 space-y-1">
+                  {result.archetypeData.strengths.map((t,i)=><li key={i}>{t}</li>)}
+                </ul>
               </div>
               <div>
                 <h4 className="font-medium mb-2">Возможные риски</h4>
-                <ul className="list-disc ml-5 space-y-1">{result.archetypeData.risks.map((t, i) => <li key={i}>{t}</li>)}</ul>
+                <ul className="list-disc ml-5 space-y-1">
+                  {result.archetypeData.risks.map((t,i)=><li key={i}>{t}</li>)}
+                </ul>
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <h4 className="font-medium mb-2">Что попробовать</h4>
-                <ul className="list-disc ml-5 space-y-1">{result.archetypeData.tryNow.map((t, i) => <li key={i}>{t}</li>)}</ul>
+                <ul className="list-disc ml-5 space-y-1">
+                  {result.archetypeData.tryNow.map((t,i)=><li key={i}>{t}</li>)}
+                </ul>
               </div>
               <div>
                 <h4 className="font-medium mb-2">На что обратить внимание</h4>
-                <ul className="list-disc ml-5 space-y-1">{result.archetypeData.watchOut.map((t, i) => <li key={i}>{t}</li>)}</ul>
+                <ul className="list-disc ml-5 space-y-1">
+                  {result.archetypeData.watchOut.map((t,i)=><li key={i}>{t}</li>)}
+                </ul>
               </div>
             </div>
 
             <div>
               <h4 className="font-medium mb-2">Рекомендации</h4>
-              <ul className="list-disc ml-5 space-y-1">{result.archetypeData.recs.map((t, i) => <li key={i}>{t}</li>)}</ul>
+              <ul className="list-disc ml-5 space-y-1">
+                {result.archetypeData.recs.map((t,i)=><li key={i}>{t}</li>)}
+              </ul>
             </div>
 
             <div>
               <h4 className="font-medium mb-2">Чек-лист предметов</h4>
-              <ul className="list-disc ml-5 space-y-1">{result.archetypeData.checklist.map((t, i) => <li key={i}>{t}</li>)}</ul>
+              <ul className="list-disc ml-5 space-y-1">
+                {result.archetypeData.checklist.map((t,i)=><li key={i}>{t}</li>)}
+              </ul>
             </div>
 
             <div className="p-4 rounded border">
@@ -120,6 +132,20 @@ export default function ResultView({ result }: ResultViewProps) {
                 <p className="text-gray-600 leading-relaxed">{result.descriptions[index]}</p>
               </div>
             ))}
+          </div>
+        </Section>
+      )}
+
+      {/* Дополнительный fallback если вообще ничего не найдено */}
+      {!result.archetypeData && result.archetypes.length === 0 && (
+        <Section title="Анализ результатов">
+          <div className="text-center py-8">
+            <p className="text-gray-600 mb-4">
+              Не удалось определить конкретный архетип на основе ваших ответов.
+            </p>
+            <p className="text-sm text-gray-500">
+              Попробуйте пройти тест еще раз, отвечая более определенно на вопросы.
+            </p>
           </div>
         </Section>
       )}
