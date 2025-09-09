@@ -152,31 +152,40 @@ export function calculateResults(answers: Record<number, number>): TestResult {
   const top1 = sortedScales[0];
   const top2 = sortedScales[1];
   const diff = scores[top1 as keyof typeof scores] - scores[top2 as keyof typeof scores];
+  
+  // Отладочная информация
+  console.log('Top scales:', { top1, top2, diff });
+  console.log('Scores:', scores);
 
   // Определяем архетипы
   const archetypes: string[] = [];
   const descriptions: string[] = [];
 
-  if (diff < 0.2) {
-    // Показываем оба архетипа
-    const archetype1 = getArchetype(top1, top2);
-    const archetype2 = getArchetype(top2, top1);
+  // Пытаемся найти архетип по комбинации топ-2 шкал
+  let archetype = getArchetype(top1, top2);
+  
+  if (!archetype) {
+    // Если не нашли, пробуем обратную комбинацию
+    archetype = getArchetype(top2, top1);
+  }
+
+  if (archetype) {
+    archetypes.push(archetype.name);
+    descriptions.push(archetype.description);
     
-    if (archetype1) {
-      archetypes.push(archetype1.name);
-      descriptions.push(archetype1.description);
-    }
-    if (archetype2 && archetype2.name !== archetype1?.name) {
-      archetypes.push(archetype2.name);
-      descriptions.push(archetype2.description);
+    // Если разница между топ-1 и топ-2 меньше 0.2, показываем оба архетипа
+    if (diff < 0.2) {
+      const archetype2 = getArchetype(top2, top1);
+      if (archetype2 && archetype2.name !== archetype.name) {
+        archetypes.push(archetype2.name);
+        descriptions.push(archetype2.description);
+      }
     }
   } else {
-    // Показываем только топ-1
-    const archetype = getArchetype(top1, top2);
-    if (archetype) {
-      archetypes.push(archetype.name);
-      descriptions.push(archetype.description);
-    }
+    // Fallback: если не нашли архетип, показываем советы по топ-шкале
+    const topScaleName = scaleNames[top1 as keyof typeof scaleNames];
+    archetypes.push(`Рекомендации по шкале "${topScaleName}"`);
+    descriptions.push(`Ваша ведущая шкала - "${topScaleName}". Обратите внимание на развитие этой области в обустройстве дома.`);
   }
 
   return {
@@ -191,13 +200,19 @@ function getArchetype(scale1: string, scale2: string): { name: string; descripti
   const combination = `${scale1}+${scale2}`;
   const reverseCombination = `${scale2}+${scale1}`;
   
+  console.log('Looking for archetype:', { scale1, scale2, combination, reverseCombination });
+  console.log('Available archetypes:', Object.keys(archetypeDescriptions));
+  
   if (archetypeDescriptions[combination as keyof typeof archetypeDescriptions]) {
+    console.log('Found archetype:', combination);
     return archetypeDescriptions[combination as keyof typeof archetypeDescriptions];
   }
   
   if (archetypeDescriptions[reverseCombination as keyof typeof archetypeDescriptions]) {
+    console.log('Found archetype (reverse):', reverseCombination);
     return archetypeDescriptions[reverseCombination as keyof typeof archetypeDescriptions];
   }
   
+  console.log('No archetype found for:', { scale1, scale2 });
   return null;
 }
