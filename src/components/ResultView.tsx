@@ -3,6 +3,7 @@
 import { TestResult, isTense } from '@/lib/scoring';
 import { scaleNames } from '@/lib/scoring';
 import { getArchetypeSmart, SCALE_LABELS } from '@/lib/homeContent';
+import { getT1Recommendations, getT2Recommendations, SCALE_NAMES } from '@/lib/tensionRecommendations';
 import Section from './Section';
 
 interface ResultViewProps {
@@ -60,57 +61,147 @@ export default function ResultView({ result }: ResultViewProps) {
 
       {/* Напряжения */}
       <Section title="Индексы напряжения">
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className={`p-4 rounded-lg ${isTense(result.tensions.T1) ? 'bg-orange-50 border border-orange-200' : 'bg-green-50 border border-green-200'}`}>
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-medium">T1 = |AT − AM|</span>
-              <span className={`text-lg font-bold ${isTense(result.tensions.T1) ? 'text-orange-600' : 'text-green-600'}`}>
+        <div className="space-y-8">
+          {/* T1 */}
+          <div className={`p-6 rounded-lg ${isTense(result.tensions.T1) ? 'bg-orange-50 border border-orange-200' : 'bg-green-50 border border-green-200'}`}>
+            <div className="flex justify-between items-center mb-4">
+              <span className="font-medium text-lg">T1 = |AT − AM|</span>
+              <span className={`text-2xl font-bold ${isTense(result.tensions.T1) ? 'text-orange-600' : 'text-green-600'}`}>
                 {result.tensions.T1.toFixed(2)}
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
               <div 
-                className={`h-2 rounded-full ${isTense(result.tensions.T1) ? 'bg-orange-500' : 'bg-green-500'}`}
+                className={`h-3 rounded-full ${isTense(result.tensions.T1) ? 'bg-orange-500' : 'bg-green-500'}`}
                 style={{ width: `${Math.min((result.tensions.T1 / 3) * 100, 100)}%` }}
               ></div>
             </div>
-            <p className="text-sm mt-2">
-              {isTense(result.tensions.T1) ? '⚠️ есть напряжение' : '✅ баланс, напряжения нет'}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Расчёт: |{result.scores.AT.toFixed(2)} − {result.scores.AM.toFixed(2)}| = {result.tensions.T1.toFixed(2)}
-            </p>
-            {isTense(result.tensions.T1) && (
-              <p className="text-xs text-orange-600 mt-1">
-                Направление: {result.scores.AT > result.scores.AM ? 'AT' : 'AM'}
+            
+            <div className="space-y-2 text-sm">
+              <p className="text-gray-600">
+                Расчёт: |{result.scores.AT.toFixed(2)} − {result.scores.AM.toFixed(2)}| = {result.tensions.T1.toFixed(2)}
               </p>
-            )}
+              {(() => {
+                const delta = result.scores.AT - result.scores.AM;
+                return (
+                  <p className="text-gray-600">
+                    ΔT1 = {delta.toFixed(2)} → перекос в сторону {delta > 0 ? 'AT' : 'AM'} ({SCALE_NAMES[delta > 0 ? 'AT' : 'AM']})
+                  </p>
+                );
+              })()}
+              <p className={`font-medium ${isTense(result.tensions.T1) ? 'text-orange-600' : 'text-green-600'}`}>
+                {isTense(result.tensions.T1) ? '⚠️ Статус: есть напряжение' : '✅ Баланс: напряжения нет'}
+              </p>
+            </div>
+
+            {/* Рекомендации для T1 */}
+            {isTense(result.tensions.T1) && (() => {
+              const delta = result.scores.AT - result.scores.AM;
+              const recommendations = getT1Recommendations(delta);
+              return (
+                <div className="mt-6 space-y-4">
+                  <h4 className="font-medium text-gray-800">Рекомендации по T1:</h4>
+                  
+                  <div>
+                    <h5 className="font-medium text-sm text-gray-700 mb-2">Универсальные шаги:</h5>
+                    <ul className="list-disc ml-5 space-y-1 text-sm">
+                      {recommendations.universal.map((rec, i) => (
+                        <li key={i} className="text-gray-600">{rec}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h5 className="font-medium text-sm text-gray-700 mb-2">Направленные шаги:</h5>
+                    <ul className="list-disc ml-5 space-y-1 text-sm">
+                      {recommendations.directional.map((rec, i) => (
+                        <li key={i} className="text-gray-600">{rec}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="bg-blue-50 p-3 rounded border">
+                    <h5 className="font-medium text-sm text-blue-800 mb-2">Микродействия сегодня:</h5>
+                    <ul className="list-disc ml-5 space-y-1 text-sm">
+                      {recommendations.microActions.map((action, i) => (
+                        <li key={i} className="text-blue-700">{action}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
-          <div className={`p-4 rounded-lg ${isTense(result.tensions.T2) ? 'bg-orange-50 border border-orange-200' : 'bg-green-50 border border-green-200'}`}>
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-medium">T2 = |CT − TU|</span>
-              <span className={`text-lg font-bold ${isTense(result.tensions.T2) ? 'text-orange-600' : 'text-green-600'}`}>
+          {/* T2 */}
+          <div className={`p-6 rounded-lg ${isTense(result.tensions.T2) ? 'bg-orange-50 border border-orange-200' : 'bg-green-50 border border-green-200'}`}>
+            <div className="flex justify-between items-center mb-4">
+              <span className="font-medium text-lg">T2 = |CT − TU|</span>
+              <span className={`text-2xl font-bold ${isTense(result.tensions.T2) ? 'text-orange-600' : 'text-green-600'}`}>
                 {result.tensions.T2.toFixed(2)}
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
               <div 
-                className={`h-2 rounded-full ${isTense(result.tensions.T2) ? 'bg-orange-500' : 'bg-green-500'}`}
+                className={`h-3 rounded-full ${isTense(result.tensions.T2) ? 'bg-orange-500' : 'bg-green-500'}`}
                 style={{ width: `${Math.min((result.tensions.T2 / 3) * 100, 100)}%` }}
               ></div>
             </div>
-            <p className="text-sm mt-2">
-              {isTense(result.tensions.T2) ? '⚠️ есть напряжение' : '✅ баланс, напряжения нет'}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Расчёт: |{result.scores.CT.toFixed(2)} − {result.scores.TU.toFixed(2)}| = {result.tensions.T2.toFixed(2)}
-            </p>
-            {isTense(result.tensions.T2) && (
-              <p className="text-xs text-orange-600 mt-1">
-                Направление: {result.scores.CT > result.scores.TU ? 'CT' : 'TU'}
+            
+            <div className="space-y-2 text-sm">
+              <p className="text-gray-600">
+                Расчёт: |{result.scores.CT.toFixed(2)} − {result.scores.TU.toFixed(2)}| = {result.tensions.T2.toFixed(2)}
               </p>
-            )}
+              {(() => {
+                const delta = result.scores.CT - result.scores.TU;
+                return (
+                  <p className="text-gray-600">
+                    ΔT2 = {delta.toFixed(2)} → перекос в сторону {delta > 0 ? 'CT' : 'TU'} ({SCALE_NAMES[delta > 0 ? 'CT' : 'TU']})
+                  </p>
+                );
+              })()}
+              <p className={`font-medium ${isTense(result.tensions.T2) ? 'text-orange-600' : 'text-green-600'}`}>
+                {isTense(result.tensions.T2) ? '⚠️ Статус: есть напряжение' : '✅ Баланс: напряжения нет'}
+              </p>
+            </div>
+
+            {/* Рекомендации для T2 */}
+            {isTense(result.tensions.T2) && (() => {
+              const delta = result.scores.CT - result.scores.TU;
+              const recommendations = getT2Recommendations(delta);
+              return (
+                <div className="mt-6 space-y-4">
+                  <h4 className="font-medium text-gray-800">Рекомендации по T2:</h4>
+                  
+                  <div>
+                    <h5 className="font-medium text-sm text-gray-700 mb-2">Универсальные шаги:</h5>
+                    <ul className="list-disc ml-5 space-y-1 text-sm">
+                      {recommendations.universal.map((rec, i) => (
+                        <li key={i} className="text-gray-600">{rec}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h5 className="font-medium text-sm text-gray-700 mb-2">Направленные шаги:</h5>
+                    <ul className="list-disc ml-5 space-y-1 text-sm">
+                      {recommendations.directional.map((rec, i) => (
+                        <li key={i} className="text-gray-600">{rec}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="bg-blue-50 p-3 rounded border">
+                    <h5 className="font-medium text-sm text-blue-800 mb-2">Микродействия сегодня:</h5>
+                    <ul className="list-disc ml-5 space-y-1 text-sm">
+                      {recommendations.microActions.map((action, i) => (
+                        <li key={i} className="text-blue-700">{action}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       </Section>
