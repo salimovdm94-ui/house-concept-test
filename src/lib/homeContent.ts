@@ -128,7 +128,7 @@ export const getArchetypeByPair = (scale1: ScaleCode, scale2: ScaleCode): Archet
 
 // Умный выбор архетипа: точная пара → ок; иначе — подбираем по ведущей шкале ближайший из кандидатов
 export const getArchetypeSmart = (avgs: Averages): {
-  archetype: ArchetypeBlock | null;
+  archetype: ArchetypeBlock;
   lead: ScaleCode;
   second: ScaleCode;
   accentScale?: ScaleCode;   // какая вторая шкала «акцентируется»
@@ -145,10 +145,7 @@ export const getArchetypeSmart = (avgs: Averages): {
 
   // Нет точной пары — подбираем по ведущей шкале
   const candidates = CANDIDATES_BY_LEAD[lead] ?? [];
-  if (candidates.length === 0) {
-    return { archetype: null, lead, second, matchedBy: 'closest' };
-  }
-
+  
   // Выбираем кандидат, у которого «парная шкала» ближе всего к фактической второй шкале пользователя
   const secondVal = getAvgByCode(avgs, second);
   let best: ArchetypeKey | null = null;
@@ -164,17 +161,16 @@ export const getArchetypeSmart = (avgs: Averages): {
     }
   }
 
-  if (!best) return { archetype: null, lead, second, matchedBy: 'closest' };
-
-  // Получаем архетип по найденному ключу
-  const archetypeKey = ARCHETYPE_MAP[best];
-  const archetypeData = archetypeDescriptions[archetypeKey];
-  
-  if (!archetypeData) {
-    return { archetype: null, lead, second, matchedBy: 'closest' };
+  // Если не нашли кандидата, берем первый доступный
+  if (!best && candidates.length > 0) {
+    best = candidates[0];
   }
 
-  const archetype: ArchetypeBlock = { ...archetypeData, key: best };
+  // Получаем архетип по найденному ключу
+  const archetypeKey = ARCHETYPE_MAP[best!];
+  const archetypeData = archetypeDescriptions[archetypeKey];
+  
+  const archetype: ArchetypeBlock = { ...archetypeData, key: best! };
   
   // Определяем акцентную шкалу (вторая по важности, не входящая в архетип)
   const archetypeScales = archetypeKey.split('+') as ScaleCode[];

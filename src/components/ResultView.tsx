@@ -2,7 +2,7 @@
 
 import { TestResult, isTense } from '@/lib/scoring';
 import { scaleNames } from '@/lib/scoring';
-import { getArchetypeSmart, SCALE_LABELS, SCALE_TIPS } from '@/lib/homeContent';
+import { getArchetypeSmart, SCALE_LABELS } from '@/lib/homeContent';
 import Section from './Section';
 
 interface ResultViewProps {
@@ -59,106 +59,120 @@ export default function ResultView({ result }: ResultViewProps) {
       </Section>
 
       {/* Напряжения */}
-      <Section title="Анализ напряжений">
-        <div className="space-y-4">
-          <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-            <span className="font-medium text-gray-700">T1 = |AT - AM|</span>
-            <span className={`text-lg font-bold ${isTense(result.tensions.T1) ? 'text-red-600' : 'text-green-600'}`}>
-              {result.tensions.T1.toFixed(2)}
-              {isTense(result.tensions.T1) && <span className="text-sm ml-2">⚠️ есть напряжение</span>}
-            </span>
+      <Section title="Индексы напряжения">
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className={`p-4 rounded-lg ${isTense(result.tensions.T1) ? 'bg-orange-50 border border-orange-200' : 'bg-green-50 border border-green-200'}`}>
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-medium">T1 = |AT − AM|</span>
+              <span className={`text-lg font-bold ${isTense(result.tensions.T1) ? 'text-orange-600' : 'text-green-600'}`}>
+                {result.tensions.T1.toFixed(2)}
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className={`h-2 rounded-full ${isTense(result.tensions.T1) ? 'bg-orange-500' : 'bg-green-500'}`}
+                style={{ width: `${Math.min((result.tensions.T1 / 3) * 100, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm mt-2">
+              {isTense(result.tensions.T1) ? '⚠️ есть напряжение' : '✅ баланс, напряжения нет'}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Расчёт: |{result.scores.AT.toFixed(2)} − {result.scores.AM.toFixed(2)}| = {result.tensions.T1.toFixed(2)}
+            </p>
+            {isTense(result.tensions.T1) && (
+              <p className="text-xs text-orange-600 mt-1">
+                Направление: {result.scores.AT > result.scores.AM ? 'AT' : 'AM'}
+              </p>
+            )}
           </div>
-          <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-            <span className="font-medium text-gray-700">T2 = |CT - TU|</span>
-            <span className={`text-lg font-bold ${isTense(result.tensions.T2) ? 'text-red-600' : 'text-green-600'}`}>
-              {result.tensions.T2.toFixed(2)}
-              {isTense(result.tensions.T2) && <span className="text-sm ml-2">⚠️ есть напряжение</span>}
-            </span>
+
+          <div className={`p-4 rounded-lg ${isTense(result.tensions.T2) ? 'bg-orange-50 border border-orange-200' : 'bg-green-50 border border-green-200'}`}>
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-medium">T2 = |CT − TU|</span>
+              <span className={`text-lg font-bold ${isTense(result.tensions.T2) ? 'text-orange-600' : 'text-green-600'}`}>
+                {result.tensions.T2.toFixed(2)}
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className={`h-2 rounded-full ${isTense(result.tensions.T2) ? 'bg-orange-500' : 'bg-green-500'}`}
+                style={{ width: `${Math.min((result.tensions.T2 / 3) * 100, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm mt-2">
+              {isTense(result.tensions.T2) ? '⚠️ есть напряжение' : '✅ баланс, напряжения нет'}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Расчёт: |{result.scores.CT.toFixed(2)} − {result.scores.TU.toFixed(2)}| = {result.tensions.T2.toFixed(2)}
+            </p>
+            {isTense(result.tensions.T2) && (
+              <p className="text-xs text-orange-600 mt-1">
+                Направление: {result.scores.CT > result.scores.TU ? 'CT' : 'TU'}
+              </p>
+            )}
           </div>
         </div>
       </Section>
 
       {/* Архетип */}
-      {!archetype && (
-        <Section title="Анализ результатов">
-          <div className="p-4 border rounded">
-            <p>
-              Не нашлось точного соответствия для пары <b>{smart.lead}</b> + <b>{smart.second}</b>.
-              Мы покажем рекомендации по вашим шкалам — ведущая: <b>{SCALE_LABELS[smart.lead]}</b>, усиление: <b>{SCALE_LABELS[smart.second]}</b>.
+      <Section title={`Ваш архетип: ${archetype.title}${smart.matchedBy === 'closest' ? ' (подбор по ведущей шкале)' : ''}`}>
+        <>
+          {smart.accentScale && (
+            <p className="text-sm text-gray-700 mb-4">
+              Акцент второй шкалы: <b>{SCALE_LABELS[smart.accentScale]}</b>. Это оттеняет архетип вашими личными приоритетами.
             </p>
-            <div className="mt-3 grid md:grid-cols-2 gap-4 text-sm">
+          )}
+
+          <div className="space-y-6">
+            <p>{archetype.essence}</p>
+
+            <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium">Советы по {SCALE_LABELS[smart.lead]}</h4>
-                <ul className="list-disc ml-5 space-y-1">{SCALE_TIPS[smart.lead].map((t,i)=><li key={i}>{t}</li>)}</ul>
+                <h4 className="font-medium mb-2">Сильные стороны</h4>
+                <ul className="list-disc ml-5 space-y-1">{archetype.strengths.map((t,i)=><li key={i}>{t}</li>)}</ul>
               </div>
               <div>
-                <h4 className="font-medium">Акцент: {SCALE_LABELS[smart.second]}</h4>
-                <ul className="list-disc ml-5 space-y-1">{SCALE_TIPS[smart.second].map((t,i)=><li key={i}>{t}</li>)}</ul>
+                <h4 className="font-medium mb-2">Возможные риски</h4>
+                <ul className="list-disc ml-5 space-y-1">{archetype.risks.map((t,i)=><li key={i}>{t}</li>)}</ul>
               </div>
             </div>
-          </div>
-        </Section>
-      )}
 
-      {archetype && (
-        <Section title={`Ваш архетип: ${archetype.title}`}>
-          <>
-            {smart.accentScale && (
-              <p className="text-sm text-gray-700 mb-4">
-                Акцент вашего профиля: <b>{SCALE_LABELS[smart.accentScale]}</b>. Это оттеняет архетип вашими личными приоритетами.
-              </p>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-medium mb-2">Что попробовать</h4>
+                <ul className="list-disc ml-5 space-y-1">{archetype.tryNow.map((t,i)=><li key={i}>{t}</li>)}</ul>
+              </div>
+              <div>
+                <h4 className="font-medium mb-2">На что обратить внимание</h4>
+                <ul className="list-disc ml-5 space-y-1">{archetype.watchOut.map((t,i)=><li key={i}>{t}</li>)}</ul>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-medium mb-2">Рекомендации</h4>
+              <ul className="list-disc ml-5 space-y-1">{archetype.recs.map((t,i)=><li key={i}>{t}</li>)}</ul>
+            </div>
+
+            {smart.accentTips && (
+              <div className="p-4 rounded border">
+                <h4 className="font-medium mb-2">Акцент второй шкалы</h4>
+                <ul className="list-disc ml-5 space-y-1">{smart.accentTips.map((t,i)=><li key={i}>{t}</li>)}</ul>
+              </div>
             )}
 
-            <div className="space-y-6">
-              <p>{archetype.essence}</p>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-medium mb-2">Сильные стороны</h4>
-                  <ul className="list-disc ml-5 space-y-1">{archetype.strengths.map((t,i)=><li key={i}>{t}</li>)}</ul>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2">Возможные риски</h4>
-                  <ul className="list-disc ml-5 space-y-1">{archetype.risks.map((t,i)=><li key={i}>{t}</li>)}</ul>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-medium mb-2">Что попробовать</h4>
-                  <ul className="list-disc ml-5 space-y-1">{archetype.tryNow.map((t,i)=><li key={i}>{t}</li>)}</ul>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2">На что обратить внимание</h4>
-                  <ul className="list-disc ml-5 space-y-1">{archetype.watchOut.map((t,i)=><li key={i}>{t}</li>)}</ul>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-medium mb-2">Рекомендации</h4>
-                <ul className="list-disc ml-5 space-y-1">{archetype.recs.map((t,i)=><li key={i}>{t}</li>)}</ul>
-              </div>
-
-              {smart.accentTips && (
-                <div className="p-4 rounded border">
-                  <h4 className="font-medium mb-2">Акцент: практические шаги</h4>
-                  <ul className="list-disc ml-5 space-y-1">{smart.accentTips.map((t,i)=><li key={i}>{t}</li>)}</ul>
-                </div>
-              )}
-
-              <div>
-                <h4 className="font-medium mb-2">Чек-лист предметов</h4>
-                <ul className="list-disc ml-5 space-y-1">{archetype.checklist.map((t,i)=><li key={i}>{t}</li>)}</ul>
-              </div>
-
-              <div className="p-4 rounded border">
-                <h4 className="font-medium mb-2">7-дневный эксперимент</h4>
-                <p className="text-sm">{archetype.experiment}</p>
-              </div>
+            <div>
+              <h4 className="font-medium mb-2">Чек-лист предметов</h4>
+              <ul className="list-disc ml-5 space-y-1">{archetype.checklist.map((t,i)=><li key={i}>{t}</li>)}</ul>
             </div>
-          </>
-        </Section>
-      )}
+
+            <div className="p-4 rounded border">
+              <h4 className="font-medium mb-2">7-дневный эксперимент</h4>
+              <p className="text-sm">{archetype.experiment}</p>
+            </div>
+          </div>
+        </>
+      </Section>
 
 
       {/* Кнопка печати */}
