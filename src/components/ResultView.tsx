@@ -2,6 +2,7 @@
 
 import { TestResult } from '@/lib/scoring';
 import { scaleNames } from '@/lib/scoring';
+import Section from './Section';
 
 interface ResultViewProps {
   result: TestResult;
@@ -20,8 +21,7 @@ export default function ResultView({ result }: ResultViewProps) {
       </div>
 
       {/* Шкалы */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">Результаты по шкалам</h2>
+      <Section title="Результаты по шкалам">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {Object.entries(result.scores).map(([scale, score]) => (
             <div key={scale} className="space-y-2">
@@ -42,11 +42,10 @@ export default function ResultView({ result }: ResultViewProps) {
             </div>
           ))}
         </div>
-      </div>
+      </Section>
 
       {/* Напряжения */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Анализ напряжений</h2>
+      <Section title="Анализ напряжений">
         <div className="space-y-4">
           <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
             <span className="font-medium text-gray-700">T1 = |AT - AM|</span>
@@ -63,20 +62,67 @@ export default function ResultView({ result }: ResultViewProps) {
             </span>
           </div>
         </div>
-      </div>
+      </Section>
 
-      {/* Архетипы */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">Ваш архетип</h2>
-        <div className="space-y-6">
-          {result.archetypes.map((archetype, index) => (
-            <div key={index} className="border-l-4 border-blue-500 pl-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">{archetype}</h3>
-              <p className="text-gray-600 leading-relaxed">{result.descriptions[index]}</p>
+      {/* Архетип */}
+      {result.archetypeData && (
+        <Section title={`Ваш архетип: ${result.archetypeData.title}`}>
+          <div className="space-y-6">
+            <p>{result.archetypeData.essence}</p>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-medium mb-2">Сильные стороны</h4>
+                <ul className="list-disc ml-5 space-y-1">{result.archetypeData.strengths.map((t, i) => <li key={i}>{t}</li>)}</ul>
+              </div>
+              <div>
+                <h4 className="font-medium mb-2">Возможные риски</h4>
+                <ul className="list-disc ml-5 space-y-1">{result.archetypeData.risks.map((t, i) => <li key={i}>{t}</li>)}</ul>
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-medium mb-2">Что попробовать</h4>
+                <ul className="list-disc ml-5 space-y-1">{result.archetypeData.tryNow.map((t, i) => <li key={i}>{t}</li>)}</ul>
+              </div>
+              <div>
+                <h4 className="font-medium mb-2">На что обратить внимание</h4>
+                <ul className="list-disc ml-5 space-y-1">{result.archetypeData.watchOut.map((t, i) => <li key={i}>{t}</li>)}</ul>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-medium mb-2">Рекомендации</h4>
+              <ul className="list-disc ml-5 space-y-1">{result.archetypeData.recs.map((t, i) => <li key={i}>{t}</li>)}</ul>
+            </div>
+
+            <div>
+              <h4 className="font-medium mb-2">Чек-лист предметов</h4>
+              <ul className="list-disc ml-5 space-y-1">{result.archetypeData.checklist.map((t, i) => <li key={i}>{t}</li>)}</ul>
+            </div>
+
+            <div className="p-4 rounded border">
+              <h4 className="font-medium mb-2">7-дневный эксперимент</h4>
+              <p className="text-sm">{result.archetypeData.experiment}</p>
+            </div>
+          </div>
+        </Section>
+      )}
+
+      {/* Fallback для случаев без архетипа */}
+      {!result.archetypeData && result.archetypes.length > 0 && (
+        <Section title="Ваш архетип">
+          <div className="space-y-6">
+            {result.archetypes.map((archetype, index) => (
+              <div key={index} className="border-l-4 border-blue-500 pl-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{archetype}</h3>
+                <p className="text-gray-600 leading-relaxed">{result.descriptions[index]}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
 
       {/* Кнопка печати */}
       <div className="text-center">
