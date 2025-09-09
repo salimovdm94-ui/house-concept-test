@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Тест "Ваша концепция дома"
 
-## Getting Started
+Полноценный веб-тест для определения архетипа жилого пространства. Пользователь отвечает на 24 утверждения по шкале 1-5 и получает анализ по 6 шкалам с определением архетипа.
 
-First, run the development server:
+## Технологии
+
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- React Hooks для управления состоянием
+
+## Функциональность
+
+- ✅ 24 вопроса с радиокнопками (шкала 1-5)
+- ✅ Прогресс-бар прохождения теста
+- ✅ Подсчет средних по 6 шкалам (ID, AT, CT, AM, HM, TU)
+- ✅ Вычисление индексов напряжений T1 и T2
+- ✅ Определение архетипов на основе топ-2 шкал
+- ✅ Красивое отображение результатов с бар-индикаторами
+- ✅ Функция печати/сохранения в PDF
+- ✅ Адаптивный дизайн
+
+## Шкалы
+
+- **ID** — Самовыражение
+- **AT** — Личные вещи и память  
+- **CT** — Порядок и структура
+- **AM** — Лёгкость перемен
+- **HM** — Ежедневные ритуалы
+- **TU** — Комфорт с непредсказуемым
+
+## Архетипы
+
+- **ID+CT** — Куратор идентичности
+- **ID+AT** — Коллекционер памяти
+- **CT+AT** — Стратег контроля
+- **AM+HM** — Кочующий гнездостроитель
+- **HM+ID** — Мастер ритуалов
+- **AM+TU** — Гибкий минималист
+
+## Запуск локально
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Откройте [http://localhost:3000](http://localhost:3000) в браузере.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Деплой на Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Загрузите проект в GitHub
+2. Подключите репозиторий к Vercel
+3. Vercel автоматически определит Next.js и выполнит деплой
+4. Получите публичный URL для тестирования
 
-## Learn More
+## Структура проекта
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/
+│   ├── page.tsx          # Главная страница с тестом
+│   ├── result/page.tsx   # Страница результатов
+│   └── layout.tsx        # Общий layout
+├── components/
+│   ├── QuestionCard.tsx  # Карточка вопроса
+│   ├── Progress.tsx      # Прогресс-бар
+│   └── ResultView.tsx    # Отображение результатов
+└── lib/
+    └── scoring.ts        # Логика подсчета результатов
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Особенности реализации
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Все 24 вопроса загружаются сразу для быстрого прохождения
+- Состояние ответов сохраняется во время прохождения теста
+- Кнопка "К результатам" активна только после ответа на все вопросы
+- Результаты показываются с визуальными индикаторами прогресса
+- Поддержка печати через браузер (Ctrl+P)
