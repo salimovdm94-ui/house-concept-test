@@ -59,6 +59,79 @@ export default function ResultView({ result }: ResultViewProps) {
         </div>
       </Section>
 
+      {/* Архетип */}
+      <Section title={`Ваш архетип: ${archetype.title}${smart.matchedBy === 'closest' ? ' (подбор по ведущей шкале)' : ''}`}>
+        <div className="text-gray-900">
+          {smart.accentScale && (
+            <p className="text-base text-gray-800 mb-4">
+              Акцент второй шкалы: <b>{SCALE_LABELS[smart.accentScale]}</b>. Это оттеняет архетип вашими личными приоритетами.
+            </p>
+          )}
+
+          <div className="space-y-6">
+            <p className="text-base text-gray-800 leading-relaxed">{archetype.essence}</p>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-3">Сильные стороны</h4>
+                <ul className="list-disc ml-5 space-y-2">
+                  {archetype.strengths.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-3">Возможные риски</h4>
+                <ul className="list-disc ml-5 space-y-2">
+                  {archetype.risks.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
+                </ul>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-3">Что попробовать</h4>
+                <ul className="list-disc ml-5 space-y-2">
+                  {archetype.tryNow.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-3">На что обратить внимание</h4>
+                <ul className="list-disc ml-5 space-y-2">
+                  {archetype.watchOut.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
+                </ul>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Рекомендации</h4>
+              <ul className="list-disc ml-5 space-y-2">
+                {archetype.recs.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
+              </ul>
+            </div>
+
+            {smart.accentTips && (
+              <div className="p-4 rounded border bg-blue-50 border-blue-200">
+                <h4 className="font-semibold text-gray-900 mb-3">Акцент второй шкалы</h4>
+                <ul className="list-disc ml-5 space-y-2">
+                  {smart.accentTips.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
+                </ul>
+              </div>
+            )}
+
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Чек-лист предметов</h4>
+              <ul className="list-disc ml-5 space-y-2">
+                {archetype.checklist.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
+              </ul>
+            </div>
+
+            <div className="p-4 rounded border bg-green-50 border-green-200">
+              <h4 className="font-semibold text-gray-900 mb-3">7-дневный эксперимент</h4>
+              <p className="text-base text-gray-800 leading-relaxed">{archetype.experiment}</p>
+            </div>
+          </div>
+        </div>
+      </Section>
+
       {/* Напряжения */}
       <Section title="Индексы напряжения">
         <div className="space-y-8">
@@ -202,79 +275,6 @@ export default function ResultView({ result }: ResultViewProps) {
                 </div>
               );
             })()}
-          </div>
-        </div>
-      </Section>
-
-      {/* Архетип */}
-      <Section title={`Ваш архетип: ${archetype.title}${smart.matchedBy === 'closest' ? ' (подбор по ведущей шкале)' : ''}`}>
-        <div className="text-gray-900">
-          {smart.accentScale && (
-            <p className="text-base text-gray-800 mb-4">
-              Акцент второй шкалы: <b>{SCALE_LABELS[smart.accentScale]}</b>. Это оттеняет архетип вашими личными приоритетами.
-            </p>
-          )}
-
-          <div className="space-y-6">
-            <p className="text-base text-gray-800 leading-relaxed">{archetype.essence}</p>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-3">Сильные стороны</h4>
-                <ul className="list-disc ml-5 space-y-2">
-                  {archetype.strengths.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-3">Возможные риски</h4>
-                <ul className="list-disc ml-5 space-y-2">
-                  {archetype.risks.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
-                </ul>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-3">Что попробовать</h4>
-                <ul className="list-disc ml-5 space-y-2">
-                  {archetype.tryNow.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-3">На что обратить внимание</h4>
-                <ul className="list-disc ml-5 space-y-2">
-                  {archetype.watchOut.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
-                </ul>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Рекомендации</h4>
-              <ul className="list-disc ml-5 space-y-2">
-                {archetype.recs.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
-              </ul>
-            </div>
-
-            {smart.accentTips && (
-              <div className="p-4 rounded border bg-blue-50 border-blue-200">
-                <h4 className="font-semibold text-gray-900 mb-3">Акцент второй шкалы</h4>
-                <ul className="list-disc ml-5 space-y-2">
-                  {smart.accentTips.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
-                </ul>
-              </div>
-            )}
-
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Чек-лист предметов</h4>
-              <ul className="list-disc ml-5 space-y-2">
-                {archetype.checklist.map((t,i)=><li key={i} className="text-gray-800">{t}</li>)}
-              </ul>
-            </div>
-
-            <div className="p-4 rounded border bg-green-50 border-green-200">
-              <h4 className="font-semibold text-gray-900 mb-3">7-дневный эксперимент</h4>
-              <p className="text-base text-gray-800 leading-relaxed">{archetype.experiment}</p>
-            </div>
           </div>
         </div>
       </Section>
